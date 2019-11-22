@@ -1,0 +1,12 @@
+python code\detect_lines_symbols.py --img inv-0001 & python code\constr_rows.py --img inv-0001 & python code\constr_blocks.py --img inv-0001 & python code\detect_table.py --img inv-0001 &
+python code\detect_lines_symbols.py --img inv-0002 & python code\constr_rows.py --img inv-0002 & python code\constr_blocks.py --img inv-0002 & python code\detect_table.py --img inv-0002 &
+python code\detect_lines_symbols.py --img inv-0003 & python code\constr_rows.py --img inv-0003 & python code\constr_blocks.py --img inv-0003 & python code\detect_table.py --img inv-0003 &
+python code\detect_lines_symbols.py --img inv-0004 & python code\constr_rows.py --img inv-0004 & python code\constr_blocks.py --img inv-0004 & python code\detect_table.py --img inv-0004 &
+python code\detect_lines_symbols.py --img inv-0005 & python code\constr_rows.py --img inv-0005 & python code\constr_blocks.py --img inv-0005 & python code\detect_table.py --img inv-0005 &
+python code\detect_lines_symbols.py --img inv-0006 & python code\constr_rows.py --img inv-0006 & python code\constr_blocks.py --img inv-0006 & python code\detect_table.py --img inv-0006 &
+python code\detect_lines_symbols.py --img inv-0007 & python code\constr_rows.py --img inv-0007 & python code\constr_blocks.py --img inv-0007 & python code\detect_table.py --img inv-0007 &
+python code\detect_lines_symbols.py --img inv-0008 & python code\constr_rows.py --img inv-0008 & python code\constr_blocks.py --img inv-0008 & python code\detect_table.py --img inv-0008 &
+python code\detect_lines_symbols.py --img inv-0009 & python code\constr_rows.py --img inv-0009 & python code\constr_blocks.py --img inv-0009 & python code\detect_table.py --img inv-0009 &
+python code\detect_lines_symbols.py --img inv-0010 & python code\constr_rows.py --img inv-0010 & python code\constr_blocks.py --img inv-0010 & python code\detect_table.py --img inv-0010 &
+python code\detect_lines_symbols.py --img inv-0011 & python code\constr_rows.py --img inv-0011 & python code\constr_blocks.py --img inv-0011 & python code\detect_table.py --img inv-0011 &
+python code\detect_lines_symbols.py --img inv-0012 & python code\constr_rows.py --img inv-0012 & python code\constr_blocks.py --img inv-0012 & python code\detect_table.py --img inv-0012

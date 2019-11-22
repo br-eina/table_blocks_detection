@@ -1,2 +1,5 @@
 # Ignore folder named 'env/'
 env/
+data/
+docs/
+results/
