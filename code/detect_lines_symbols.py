@@ -33,3 +33,10 @@ def write_to_json(stats, filename):
     with open(filename, 'wb') as outfile:
     # store the data as binary data stream
         pickle.dump(data, outfile)
+
+def gray_image(image):
+    NUM_CHANNELS = 3
+    if len(image.shape) == NUM_CHANNELS:
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    return image
+    
