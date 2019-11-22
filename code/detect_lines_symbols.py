@@ -39,4 +39,9 @@ def gray_image(image):
     if len(image.shape) == NUM_CHANNELS:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     return image
+
+def threshold_image(image):
+    gray = gray_image(image)
+    thresh_image = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    return thresh_image
     
