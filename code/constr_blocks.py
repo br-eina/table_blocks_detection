@@ -263,6 +263,10 @@ for ind_row, row in enumerate(rows):
             y_top_list = []
             y_bot_list = []
 
+
+
+
+
 show_text_blocks_in_row(image, text_blocks_rows)
 
 def save_text_blocks():

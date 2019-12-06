@@ -116,6 +116,10 @@ for element in text_elements:
     cv2.rectangle(image_to_show, p_1, p_2, (0, 0, 255), 3)
 save_image(image_to_show, 'results/{0}/{0}_all_text.jpg'.format(image_name))
 
+# show_bbox(image, hor_lines[5])
+print("Line coord: ", hor_lines[5])
+
+
 # Make ROI for 4th line:
 if len(line_elements) > 0:
     line = line_elements[0] 
@@ -136,11 +140,12 @@ def check_if_el_in_roi(elem, roi):
         return 0
 
 def check_if_two_el_in_row(elem_1, elem_2):
+    t = 2
     y1_top = elem_1['y']
     y1_bot = y1_top + elem_1['h']
     y2_top = elem_2['y']
     y2_bot = y2_top + elem_2['h']
-    if (y1_top <= y2_bot and y1_bot >= y2_top) or (y2_top <= y1_bot and y2_bot >= y1_top):
+    if (y1_top <= y2_bot - t and y1_bot >= y2_top + t) or (y2_top <= y1_bot - t and y2_bot >= y1_top + t):
         return 1
     else:
         return 0 
@@ -376,9 +381,86 @@ for ind_row, row in enumerate(rows):
         # 'y_bot': y_bot
     })
 
-# # Divide rows by horizontal lines:
-# new_rows = []
-# for row in row_positions:
+# show_bbox(image, row_positions[6])
+print("Row coord: ", row_positions[6])
+
+def check_if_line_in_roi(elem, roi):
+    if (
+        # (((elem['x'] + elem['w']) >= roi['x']) or (elem['x'] <= (roi['x'] + roi['w'])) or ((elem['x'] <= roi['x']) and ((elem['x'] + elem['w']) >= (roi['x'] + roi['w'])))) and
+        (((elem['x'] <= roi['x']) and ((elem['x'] + elem['w']) >= roi['x'])) or (roi['x'] <= elem['x'] <= (roi['x'] + roi['w']))) and
+        elem['y'] >= roi['y'] + avg_height and
+        (elem['y'] + elem['h']) <= (roi['y'] + roi['h']) 
+    ):
+        return 1
+    else:
+        return 0
+
+def define_row_position(row):
+    mass_y_top = []
+    mass_y_bot = []
+    mass_x_left = []
+    mass_x_right = []
+    for elem in row:
+        mass_x_left.append(elem['x'])
+        mass_x_right.append(elem['x'] + elem['w'])
+
+        mass_y_top.append(elem['y'])
+        mass_y_bot.append(elem['y'] + elem['h'])
+    x_left = min(mass_x_left)
+    x_right = max(mass_x_right)
+    y_top = min(mass_y_top)
+    y_bot = max(mass_y_bot)
+
+    row_position = {
+        'ind': ind_row,
+        'x': x_left,
+        'y': y_top,
+        'w': x_right - x_left,
+        'h': y_bot - y_top
+        # 'y_top': y_top,
+        # 'y_bot': y_bot
+    }
+    return row_position
+
+new_rows = []
+
+# Divide rows by horizontal lines:
+new_rows = []
+for ind_row, row_position in enumerate(row_positions):
+    for ind_line, line in enumerate(hor_lines):
+        if check_if_line_in_roi(line, row_position) == 1:
+            row_under_line = []
+            trigger = 0
+            for element in rows[ind_row][:]:
+                if (
+                    (element['x'] >= line['x']) and ((element['x'] + element['w']) <= (line['x'] + line['w'])) and
+                    (element['y'] >= line['y'])
+                ):
+                    trigger += 1
+                    row_under_line.append(element)
+                    rows[ind_row].remove(element)
+                    
+                    # row_above_line = rows[ind_row]
+                    # rows[ind_row] = row_under_line
+                # else:
+                #     then
+            # # Check if we need to divide row further
+            # if len(row_under_line) != 0:
+
+            if trigger != 0:
+                new_rows.append(row_under_line)
+                print("Line {0} in a row {1}!".format(ind_line, ind_row))
+                # show_bbox(image, row_position)
+                # show_bbox(image, line)
+            
+            
+
+if len(new_rows) != 0:
+    rows = rows + new_rows
+
+rows = sort_rows(rows)
+
+
 
 show_conn_comp_in_row(image, rows)
 
@@ -413,3 +495,116 @@ def save_rows():
         pickle.dump(rows, outfile)
 
 save_rows()
+
+
+
+
+
+
+
+
+
+# def divide_row_by_line(row, row_position, hor_lines):
+#     for line in hor_lines:
+#         if check_if_line_in_roi(line, row_position) == 1:
+#             row_under_line = []
+#             trigger = 0
+#             for element in row[:]:
+#                 if (
+#                     (element['x'] >= line['x']) and ((element['x'] + element['w']) <= (line['x'] + line['w'])) and
+#                     (element['y'] >= line['y'])
+#                 ):
+#                     trigger += 1
+#                     row_under_line.append(element)
+#                     row.remove(element)
+
+#                     row_above_line = row
+#                     row = row_under_line
+#             if trigger != 0:
+#                 new_rows.append(row_above_line)
+#                 row_position = define_row_position(row)
+#                 divide_row_by_line(row, row_position, hor_lines)
+            
+
+
+
+# # Divide rows by horizontal lines:
+
+# for ind_row, row_position in enumerate(row_positions):
+#     row = rows[ind_row]
+#     divide_row_by_line(row, row_position, hor_lines)
+
+
+
+
+
+
+
+
+
+# # Find row positions:
+# row_positions = []
+# for ind_row, row in enumerate(rows):
+#     mass_y_top = []
+#     mass_y_bot = []
+#     mass_x_left = []
+#     mass_x_right = []
+#     for ind_elem, elem in enumerate(row):
+#         mass_x_left.append(elem['x'])
+#         mass_x_right.append(elem['x'] + elem['w'])
+
+#         mass_y_top.append(elem['y'])
+#         mass_y_bot.append(elem['y'] + elem['h'])
+#     x_left = min(mass_x_left)
+#     x_right = max(mass_x_right)
+#     y_top = min(mass_y_top)
+#     y_bot = max(mass_y_bot)
+
+#     row_positions.append({
+#         'ind': ind_row,
+#         'x': x_left,
+#         'y': y_top,
+#         'w': x_right - x_left,
+#         'h': y_bot - y_top
+#         # 'y_top': y_top,
+#         # 'y_bot': y_bot
+#     })
+
+
+
+
+
+# # Divide rows by horizontal lines:
+# new_rows = []
+# for ind_row, row_position in enumerate(row_positions):
+#     for ind_line, line in enumerate(hor_lines):
+#         if check_if_line_in_roi(line, row_position) == 1:
+#             row_under_line = []
+#             trigger = 0
+#             for element in rows[ind_row][:]:
+#                 if (
+#                     (element['x'] >= line['x']) and ((element['x'] + element['w']) <= (line['x'] + line['w'])) and
+#                     (element['y'] >= line['y'])
+#                 ):
+#                     trigger += 1
+#                     row_under_line.append(element)
+#                     rows[ind_row].remove(element)
+                    
+#                     # row_above_line = rows[ind_row]
+#                     # rows[ind_row] = row_under_line
+#                 # else:
+#                 #     then
+#             # # Check if we need to divide row further
+#             # if len(row_under_line) != 0:
+
+#             if trigger != 0:
+#                 new_rows.append(row_under_line)
+#                 print("Line {0} in a row {1}!".format(ind_line, ind_row))
+#                 # show_bbox(image, row_position)
+#                 # show_bbox(image, line)
+            
+            
+
+# if len(new_rows) != 0:
+#     rows = rows + new_rows
+# division_block(rows)

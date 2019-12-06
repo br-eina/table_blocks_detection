@@ -203,6 +203,10 @@ def save_tables_lines(image, lines_elem):
 if len(table_elements) != 0:
     find_tables_without_lines()
     save_tables_lines(image, table_elements_with_lines)
+    with open("number_tables.txt", "a") as myfile:
+        string = str(len(table_elements_with_lines)) + "\n"
+        myfile.write(string)
+
 
 # # Определяем позиции рядов текстовых блоков:
 # row_positions = []
