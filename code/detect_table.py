@@ -127,15 +127,32 @@ for line in hor_lines[:]:
     if line['h'] >= line['w'] // 25:
         hor_lines.remove(line)
 
-def check_number_blocks_in_table(table, text_blocks_rows):
+
+# Add parameter to text block
+# in_table: False
+for ind_row, row in enumerate(text_blocks_rows):
+    for ind_block, block in enumerate(row):
+        text_blocks_rows[ind_row][ind_block]['in_table'] = False
+
+
+
+def check_number_blocks_in_table(tables, text_blocks_rows):
+    # Add parameter to text block
+    # If in table: True
     num_blocks_in_table = 0 
-    for row in text_blocks_rows:
-        for block in row:
-            if (
-                (block['x'] >= table['x']) and (block['x'] + block['w'] <= table['x'] + table['w']) and
-                (block['y'] >= table['y']) and (block['y'] + block['h'] <= table['y'] + table['h'])
-            ):
-                num_blocks_in_table += 1
+    
+    for ind_row, row in enumerate(text_blocks_rows):
+        for ind_block, block in enumerate(row):
+            for table in tables:
+                if (
+                    (block['x'] >= table['x']) and (block['x'] + block['w'] <= table['x'] + table['w']) and
+                    (block['y'] >= table['y']) and (block['y'] + block['h'] <= table['y'] + table['h'])
+                ):
+                    text_blocks_rows[ind_row][ind_block]['in_table'] = True
+                    num_blocks_in_table += 1
+                # else:
+                #     if not text_blocks_rows[ind_row][ind_block]['in_table']:
+                #         text_blocks_rows[ind_row][ind_block]['in_table'] = False
     if num_blocks_in_table >= 4:
         return 1
     else:
@@ -174,7 +191,7 @@ def check_number_lines_in_table(table, hor_lines, vert_lines):
     ):
         return 1
     else:
-        return 0   
+        return 0
     # if (
     #     num_hor >= 1 and num_vert >= 1
     # ):
@@ -200,12 +217,21 @@ def save_tables_lines(image, lines_elem):
         cv2.rectangle(image_to_show, p_1, p_2, (0, 0, 255), 3)
     save_image(image_to_show, "results/{}_tables.jpg".format(image_name))
 
+def save_text_blocks():
+    with open("data/data_text_blocks_tables_{0}.data".format(image_name), 'wb') as outfile:
+        pickle.dump(text_blocks_rows, outfile)
+
 if len(table_elements) != 0:
     find_tables_without_lines()
+    check_number_blocks_in_table(table_elements_with_lines, text_blocks_rows)
     save_tables_lines(image, table_elements_with_lines)
+    save_text_blocks()
     with open("number_tables.txt", "a") as myfile:
         string = str(len(table_elements_with_lines)) + "\n"
         myfile.write(string)
+
+
+
 
 
 # # Определяем позиции рядов текстовых блоков:
@@ -471,6 +497,19 @@ if len(table_elements) != 0:
 #             file_for_tesser.write("{0}-{1}-{2}.jpg\n".format(image_name, ind_row, ind_block))
 #             save_image(cropped_image, filename)
             
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

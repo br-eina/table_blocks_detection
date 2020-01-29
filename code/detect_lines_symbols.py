@@ -95,8 +95,8 @@ def average_height(stats):
 def detect_text_elements(stats, avg_height):
     text_el_stats = []
     for stat in stats:
-        # 4
-        if stat[2] < 10 * stat[3] and (4 <= stat[3] <= avg_height * 3) and 10 <= stat[4] <= 1500:
+        # 4 (vo 2oy) and 10 (v 3ey)
+        if stat[2] < 10 * stat[3] and (2 <= stat[3] <= avg_height * 3) and 8 <= stat[4] <= 1500:
             text_el_stats.append(stat)
     return text_el_stats
 
