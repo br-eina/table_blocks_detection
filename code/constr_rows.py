@@ -1,5 +1,5 @@
 import numpy as np
-import cv2 
+import cv2
 import json
 import copy
 import random
@@ -80,7 +80,8 @@ parser.add_argument("--img", help="help_image_name")
 args = parser.parse_args()
 image_name = str(args.img)
 
-image_path = "docs/{0}.jpg".format(image_name)
+# image_path = "docs/{0}.jpg".format(image_name)
+image_path = "categories/___/{0}.jpg".format(image_name)
 image = cv2.imread(image_path)
 
 # Load text elem

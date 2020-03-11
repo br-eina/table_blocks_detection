@@ -103,13 +103,13 @@ def detect_text_elements(stats, avg_height):
 def isolate_lines(src, structuring_element):
     cv2.erode(src, structuring_element, src, (-1, -1)) # makes white spots smaller
     cv2.dilate(src, structuring_element, src, (-1, -1)) # makes white spots bigger
-    
+
 def detect_text_for_rem(stats, avg_height):
     remaining_text = copy.deepcopy(stats)
     for stat in remaining_text[:]:
         if (
             (stat[2] <= 6 and stat[3] >= 4 * stat[2]) or
-            (stat[3] <= 6 and stat[2] >= 4 * stat[3]) or 
+            (stat[3] <= 6 and stat[2] >= 4 * stat[3]) or
             stat[4] <= 15
         ):
             remaining_text.remove(stat)
@@ -182,7 +182,8 @@ if not os.path.exists('results/{0}/binary'.format(image_name)):
     os.makedirs('results/{0}/binary'.format(image_name))
 
 # Initialize image
-image_path = "docs/{0}.jpg".format(image_name)
+# image_path = "docs/{0}.jpg".format(image_name)
+image_path = "categories/___/{0}.jpg".format(image_name)
 image = cv2.imread(image_path)
 
 # Threshold image

@@ -6,6 +6,7 @@ results/
 categories/
 tessdata/
 tests/
+annotator/VGG*Image*Annotator/
 .travis.yml
 MANIFEST.in
 LICENSE
@@ -15,6 +16,7 @@ tesserocr-2.4.0-cp37-cp37m-win_amd64.whl
 tesserocr.pyx
 tox.ini
 Dockerfile
+README.rst
 
 
 
