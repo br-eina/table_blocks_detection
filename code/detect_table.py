@@ -80,7 +80,6 @@ def check_rows_for_two_el(rows):
 parser = argparse.ArgumentParser()
 parser.add_argument("--img", help="help_image_name")
 args = parser.parse_args()
-
 image_name = str(args.img)
 
 # image_name = 'schet_opl-23'
@@ -137,19 +136,23 @@ for line in hor_lines[:]:
     if line['h'] >= line['w'] // 25:
         hor_lines.remove(line)
 
+# Разрешение изображения:
+height, width = image.shape[:2]
 
 # Add parameter to text block
 # in_table: False
 for ind_row, row in enumerate(text_blocks_rows):
     for ind_block, block in enumerate(row):
         text_blocks_rows[ind_row][ind_block]['in_table'] = False
+        text_blocks_rows[ind_row][ind_block]['img_h'] = height
+        text_blocks_rows[ind_row][ind_block]['img_w'] = width
 
 # Add parameter to symbol
 # in_table: False
 for ind in range(len(text_elements)):
     text_elements[ind]['in_table'] = False
-
-
+    text_elements[ind]['img_h'] = height
+    text_elements[ind]['img_w'] = width
 
 def check_number_blocks_in_table(tables, text_blocks_rows):
     # Add parameter to text block
@@ -209,7 +212,7 @@ def check_number_lines_in_table(table, hor_lines, vert_lines):
     if (
         (num_hor == 2 and num_vert > 2) or
         (num_vert == 2 and num_hor > 2) or
-        (num_hor > 2 and num_vert > 2) or 
+        (num_hor > 2 and num_vert > 2) or
         (num_hor >= 3) or
         (num_vert >= 3)
         # (num_vert == 1 and num_hor >= 3) or
@@ -252,9 +255,18 @@ def save_image_symbols_not_in_table(image, symbols_not_in_table):
         cv2.rectangle(image_to_show, p_1, p_2, (0, 0, 255), 2)
     save_image(image_to_show, "categories/___/debug/{}_symbols_not_in_table.jpg".format(image_name))
 
+def save_image_blocks_not_in_table(image, blocks_not_in_table):
+    image_to_show = image.copy()
+    for element in blocks_not_in_table:
+        p_1 = (element['x'], element['y'])
+        p_2 = (element['x'] + element['w'], element['y'] + element['h'])
+        cv2.rectangle(image_to_show, p_1, p_2, (0, 0, 255), 2)
+    save_image(image_to_show, "categories/___/debug/{}_blocks_not_in_table.jpg".format(image_name))
+
 def save_text_blocks():
     with open("data/data_text_blocks_tables_{0}.data".format(image_name), 'wb') as outfile:
         pickle.dump(text_blocks_rows, outfile)
+
 
 # Сохранение символов, не лежащих в таблице:
 def save_symbols_not_in_table(text_elements, tables):
@@ -270,19 +282,50 @@ def save_symbols_not_in_table(text_elements, tables):
     with open("categories/___/data/symbols_not_in_table_{0}.data".format(image_name), 'wb') as outfile:
         pickle.dump(symbols_not_in_table, outfile)
 
+# Сохранение блоков, не лежащих в таблице:
+def save_blocks_not_in_table(text_blocks):
+    blocks_not_in_table = []
+    for row in text_blocks:
+        for block in row:
+            if block['in_table'] == False:
+                blocks_not_in_table.append(block)
+    save_image_blocks_not_in_table(image, blocks_not_in_table)
+    with open("categories/___/data/blocks_not_in_table_{0}.data".format(image_name), 'wb') as f:
+        pickle.dump(blocks_not_in_table, f)
 
-if len(table_elements) != 0:
-    find_tables_without_lines()
-    check_number_blocks_in_table(table_elements_with_lines, text_blocks_rows)
-    save_tables_lines(image, table_elements_with_lines)
-    print(table_elements_with_lines)
-    save_symbols_not_in_table(text_elements, table_elements_with_lines)
-    save_text_blocks()
-    with open("number_tables.txt", "a") as myfile:
-        string = str(len(table_elements_with_lines)) + "\n"
-        myfile.write(string)
+
+
+
+def main():
+    if len(table_elements) != 0:
+        find_tables_without_lines()
+        check_number_blocks_in_table(table_elements_with_lines, text_blocks_rows)
+        save_tables_lines(image, table_elements_with_lines)
+        print(table_elements_with_lines)
+        save_symbols_not_in_table(text_elements, table_elements_with_lines)
+        save_text_blocks()
+        save_blocks_not_in_table(text_blocks_rows)
+        with open("number_tables.txt", "a") as myfile:
+            string = str(len(table_elements_with_lines)) + "\n"
+            myfile.write(string)
 
     # save_symbols_not_in_table(text_elements, table_elements_with_lines)
+
+main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
