@@ -174,7 +174,7 @@ def detach_blocks_by_vert_lines(element_1, element_2, vert_lines):
         return 1
     else:
         return 0
-        
+
 # Construct text blocks:
 # Задаем массивы y_top ; y_bot - границы блока по макс-мин букве
 y_top_list = []
@@ -185,12 +185,15 @@ for ind_row, row in enumerate(rows):
     x_l = row[0]['x']
     y_t = row[0]['y']
     text_blocks_rows.append([])
+    chars = 0
     for ind_elem, elem in enumerate(row):
         # Заполняем массив по каждому элементу
         y_top = elem['y']
         y_top_list.append(y_top)
         y_bot = elem['y'] + elem['h']
         y_bot_list.append(y_bot)
+
+        chars += 1
 
         ind_next_elem = ind_elem + 1
         # Если элемент в массиве не последний:
@@ -199,7 +202,7 @@ for ind_row, row in enumerate(rows):
             # Если расст до след элемента не входит в разграничивающие расстояния:
             if (
                 ((elem['d_next'] not in not_consec_dist) or
-                (0 <= elem['d_next'] <= avg_dist_characters * 3) or 
+                (0 <= elem['d_next'] <= avg_dist_characters * 3) or
                 (avg_dist_words / 2 <= elem['d_next'] <= avg_dist_words * 3)) and
                 detach_blocks == 0
             ):
@@ -230,11 +233,13 @@ for ind_row, row in enumerate(rows):
                 text_block['y'] = y_t
                 text_block['w'] = w
                 text_block['h'] = h
+                text_block['chars'] = chars
                 text_blocks_rows[ind_row].append(text_block)
 
                 # Обнуляем массивы y_top ; y_bot
                 y_top_list = []
                 y_bot_list = []
+                chars = 0
 
                 # Задаем начальные координаты следующего блока:
                 next_element = row[ind_next_elem]
@@ -258,11 +263,13 @@ for ind_row, row in enumerate(rows):
             text_block['y'] = y_t
             text_block['w'] = w
             text_block['h'] = h
+            text_block['chars'] = chars
             text_blocks_rows[ind_row].append(text_block)
 
             # Обнуляем массивы y_top ; y_bot
             y_top_list = []
             y_bot_list = []
+            chars = 0
 
 
 
@@ -275,7 +282,7 @@ def save_text_blocks():
         pickle.dump(text_blocks_rows, outfile)
 
 save_text_blocks()
-                
+
 # filename_for_tesser = "images/cropped_blocks/input.txt"
 # file_for_tesser = open(filename_for_tesser, 'w')
 

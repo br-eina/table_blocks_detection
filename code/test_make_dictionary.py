@@ -16,7 +16,7 @@ for filename in onlyfiles:
 # print(no_extension_filenames)
 
 # with open ("commands_categories.txt", "w+") as text_file:
-with open ("commands_categories_detect_table.txt", "w+") as text_file:
+with open ("commands_categories_detect_block + table.txt", "w+") as text_file:
     for ind, image_name in enumerate(no_extension_filenames):
         string1 = "python code\detect_lines_symbols.py --img {0} & ".format(image_name)
         string2 = "python code\constr_rows.py --img {0} & ".format(image_name)
@@ -26,7 +26,7 @@ with open ("commands_categories_detect_table.txt", "w+") as text_file:
         else:
             string4 = "python code\\detect_table.py --img {0}".format(image_name)
         # string = string1 + string2 + string3 + string4
-        string = string4
+        string = string3 + string4
         print(string, file=text_file)
 
 
