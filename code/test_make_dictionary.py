@@ -30,6 +30,8 @@ with open ("commands_categories_detect_block + table.txt", "w+") as text_file:
         print(string, file=text_file)
 
 
+# 11
+
 
 
 
