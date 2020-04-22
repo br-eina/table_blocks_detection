@@ -40,6 +40,7 @@ def main():
     print(f'{len(img_names)} images to process: \n')
     pbar = tqdm(img_names)
     for ind_img, image_name in enumerate(pbar):
+        create_folders(image_name)
         image_path = f'{folder_path + image_name}.jpg'
         # Script sequence
         detect_lines_symbols.main(image_name, image_path)
