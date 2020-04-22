@@ -1,1 +1,0 @@
-python code\detect_lines_symbols.py --img inv-0001 & python code\constr_rows.py --img inv-0001 & python code\constr_blocks.py --img inv-0001 & python code\detect_table.py --img inv-0001

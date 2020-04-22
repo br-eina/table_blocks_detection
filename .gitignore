@@ -1,11 +1,14 @@
 # Ignore folder named 'env/'
 env/
-data/
+inv_processing/data/
+scripts/1C pdf
+scripts/1C img
 docs/
 results/
 categories/
 tessdata/
 tests/
+data_not_in_table/
 annotator/VGG*Image*Annotator/
 .travis.yml
 MANIFEST.in
