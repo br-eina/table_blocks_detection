@@ -183,7 +183,8 @@ if not os.path.exists('results/{0}/binary'.format(image_name)):
 
 # Initialize image
 # image_path = "docs/{0}.jpg".format(image_name)
-image_path = "categories/___/{0}.jpg".format(image_name)
+# image_path = "categories/___/{0}.jpg".format(image_name)
+image_path = r'e:/__PR/docs/pdf2jpg/1C img/{0}.jpg'.format(image_name)
 image = cv2.imread(image_path)
 
 # Threshold image

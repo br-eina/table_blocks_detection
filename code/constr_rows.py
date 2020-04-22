@@ -61,7 +61,7 @@ def show_text_elem_in_roi(image, text_elem_in_roi):
         p_2 = (element['x'] + element['w'], element['y'] + element['h'])
         cv2.rectangle(image_to_show, p_1, p_2, (0, 0, 255), 5)
     show_image(image_to_show)
-    
+
 def show_conn_comp_in_row(image, rows):
     image_to_show = image.copy()
     for row in rows:
@@ -81,7 +81,8 @@ args = parser.parse_args()
 image_name = str(args.img)
 
 # image_path = "docs/{0}.jpg".format(image_name)
-image_path = "categories/___/{0}.jpg".format(image_name)
+# image_path = "categories/___/{0}.jpg".format(image_name)
+image_path = r'e:/__PR/docs/pdf2jpg/1C img/{0}.jpg'.format(image_name)
 image = cv2.imread(image_path)
 
 # Load text elem

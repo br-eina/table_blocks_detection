@@ -1,5 +1,5 @@
 import numpy as np
-import cv2 
+import cv2
 from PIL import Image
 import sys
 import json
@@ -85,13 +85,13 @@ def save_image(image, filename):
 
 
 
-image_name = "inv-0014"
-binary_image_path = "results/{0}/binary/{0}_binary.jpg".format(image_name)
-binary_image = cv2.imread(binary_image_path)
-new_binary_image = 255 - binary_image
+# image_name = "inv-0014"
+# binary_image_path = "results/{0}/binary/{0}_binary.jpg".format(image_name)
+# binary_image = cv2.imread(binary_image_path)
+# new_binary_image = 255 - binary_image
 
 
-save_image(new_binary_image, "NEW+BINARY.jpg")
+# save_image(new_binary_image, "NEW+BINARY.jpg")
 
 
 

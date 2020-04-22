@@ -1,5 +1,5 @@
 import numpy as np
-import cv2 
+import cv2
 from PIL import Image
 import sys
 import json
@@ -9,7 +9,7 @@ import random
 import itertools
 from collections import Counter
 import pickle
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import csv
 # import pytesseract
 import os
@@ -58,7 +58,7 @@ def show_text_elem_in_roi(image, text_elem_in_roi):
 def show_text_blocks_in_row(image, rows):
     image_to_show = image.copy()
     for row in rows:
-        for element in row: 
+        for element in row:
             p_1 = (element['x'], element['y'])
             p_2 = (element['x'] + element['w'], element['y'] + element['h'])
             cv2.rectangle(image_to_show, p_1, p_2, (0, 0, 255), 4)
@@ -74,7 +74,8 @@ args = parser.parse_args()
 image_name = str(args.img)
 
 # image_path = "docs/{0}.jpg".format(image_name)
-image_path = "categories/___/{0}.jpg".format(image_name)
+# image_path = "categories/___/{0}.jpg".format(image_name)
+image_path = r'e:/__PR/docs/pdf2jpg/1C img/{0}.jpg'.format(image_name)
 image = cv2.imread(image_path)
 
 # Load text elem

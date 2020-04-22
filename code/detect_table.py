@@ -1,5 +1,5 @@
 import numpy as np
-import cv2 
+import cv2
 import json
 import copy
 import random
@@ -42,7 +42,7 @@ def show_bbox(image, element):
 def show_text_blocks_in_row(image, rows):
     image_to_show = image.copy()
     for row in rows:
-        for element in row: 
+        for element in row:
             p_1 = (element['x'], element['y'])
             p_2 = (element['x'] + element['w'], element['y'] + element['h'])
             cv2.rectangle(image_to_show, p_1, p_2, (0, 0, 255), 4)
@@ -85,7 +85,8 @@ image_name = str(args.img)
 # image_name = 'schet_opl-23'
 
 # image_path = "docs/{0}.jpg".format(image_name)
-image_path = "categories/___/{0}.jpg".format(image_name)
+# image_path = "categories/___/{0}.jpg".format(image_name)
+image_path = r'e:/__PR/docs/pdf2jpg/1C img/{0}.jpg'.format(image_name)
 
 image = cv2.imread(image_path)
 
@@ -157,8 +158,8 @@ for ind in range(len(text_elements)):
 def check_number_blocks_in_table(tables, text_blocks_rows):
     # Add parameter to text block
     # If in table: True
-    num_blocks_in_table = 0 
-    
+    num_blocks_in_table = 0
+
     for ind_row, row in enumerate(text_blocks_rows):
         for ind_block, block in enumerate(row):
             for table in tables:
@@ -203,7 +204,7 @@ def check_number_lines_in_table(table, hor_lines, vert_lines):
     for line in hor_lines:
         if check_if_line_in_table(line, table) == 1:
             num_hor += 1
-    
+
     num_vert = 0
     for line in vert_lines:
         if check_if_line_in_table(line, table) == 1:
@@ -292,9 +293,6 @@ def save_blocks_not_in_table(text_blocks):
     save_image_blocks_not_in_table(image, blocks_not_in_table)
     with open("categories/___/data/blocks_not_in_table_{0}.data".format(image_name), 'wb') as f:
         pickle.dump(blocks_not_in_table, f)
-
-
-
 
 def main():
     if len(table_elements) != 0:
