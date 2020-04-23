@@ -17,24 +17,6 @@ def write_to_json(stats, filename):
     with open(filename, 'wb') as outfile:
         pickle.dump(data, outfile)
 
-def gray_image(image):
-    num_channels = 3
-    if len(image.shape) == num_channels:
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    return image
-
-def threshold_image(image):
-    gray = gray_image(image)
-    thresh_image = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    return thresh_image
-
-def display_centroids(image, array):
-    image_to_show = image.copy()
-    for coord in array:
-        cv2.circle(image_to_show, (int(coord[0]), int(coord[1])), 6, (0, 0, 255), -1)
-    # show_image(image_to_show)
-    utils.show_image(image_to_show)
-
 def display_labels(labels, retval, indexes_to_remove, thresh, image_name):
     full_mask = thresh[:]
     full_mask = 0
@@ -161,14 +143,14 @@ def main(image_name, image_path):
     image = cv2.imread(image_path)
 
     # Threshold image
-    thresh = threshold_image(image)
+    thresh = utils.threshold_image(image)
     thresh = 255 - thresh
 
     # Dilate (to get dilated lines and large connected components):
     kernel = np.ones((3, 3), np.uint8)
     dilation_image = cv2.dilate(thresh, kernel, iterations=2)
 
-    # Get connected components for whole binary image
+    # Get connected components for whole thresh image
     retval, labels, stats_np, centroids = cv2.connectedComponentsWithStats(thresh, connectivity=8)
     stats_np = stats_np[1: retval]
     centroids = centroids[1:retval]
@@ -219,7 +201,7 @@ def main(image_name, image_path):
 
     elem_image_path = "results/{0}/binary/{0}_detached_elem.jpg".format(image_name)
     elem_image = cv2.imread(elem_image_path)
-    elem_gray_image = gray_image(elem_image)
+    elem_gray_image = utils.grayscale_image(elem_image)
     _, thresh1 = cv2.threshold(elem_gray_image, 127, 255, cv2.THRESH_BINARY)
 
     # Connected components for remaining text elements:
@@ -255,7 +237,7 @@ def main(image_name, image_path):
               vert_lines_stats, hor_lines_stats, avg_height, image_name)
 
 if __name__ == "__main__":
-    _image_name = "image_test"
-    _image_path = "{}.jpg".format(_image_name)
-    main(_image_name, _image_path)
+    _IMAGE_NAME = "image_test"
+    _IMAGE_PATH = "{}.jpg".format(_IMAGE_NAME)
+    main(_IMAGE_NAME, _IMAGE_PATH)
     print(__name__)
