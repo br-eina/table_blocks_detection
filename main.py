@@ -58,17 +58,14 @@ def main():
     print(f'{len(img_names)} images to process: \n')
     pbar = tqdm(img_names)
     for ind_img, image_name in enumerate(pbar):
+        pbar.set_description(f'Image #{ind_img+1}: {image_name}')
         create_folders(image_name)
         image_path = f'{folder_path + image_name}.jpg'
         # Script sequence
         detect_lines_symbols.main(image_name, image_path)
-        pbar.set_description(f'Image #{ind_img+1}: {image_name}')
         constr_rows.main(image_name, image_path)
-        pbar.set_description(f'Image #{ind_img+1}: {image_name}')
         constr_blocks.main(image_name, image_path)
-        pbar.set_description(f'Image #{ind_img+1}: {image_name}')
         detect_table.main(image_name, image_path)
-        pbar.set_description(f'Image #{ind_img+1}: {image_name}')
 
 if __name__ == "__main__":
     main()
