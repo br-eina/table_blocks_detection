@@ -126,7 +126,7 @@ def check_number_lines_in_table(table, hor_lines, vert_lines):
         (num_hor == 2 and num_vert > 2) or
         (num_vert == 2 and num_hor > 2) or
         (num_hor > 2 and num_vert > 2) or
-        (num_hor >= 3) or
+        (num_hor >= 3 and num_vert > 0) or
         (num_vert >= 3)
     ):
         return 1
@@ -146,6 +146,7 @@ def save_tables_lines(image, lines_elem, image_name):
         p_2 = (element['x'] + element['w'], element['y'] + element['h'])
         cv2.rectangle(image_to_show, p_1, p_2, (0, 0, 255), 3)
     save_image(image_to_show, "results/{}_tables.jpg".format(image_name))
+    save_image(image_to_show, "results/{0}/{0}_tables.jpg".format(image_name))
 
 def save_image_symbols_not_in_table(image, symbols_not_in_table, image_name):
     image_to_show = image.copy()
@@ -203,7 +204,7 @@ def main(image_name, image_path):
         text_blocks_rows = pickle.load(filehandle)
 
     # Load lines elem
-    with open('inv_processing/data/data_lines_{0}.data'.format(image_name), 'rb') as filehandle:
+    with open('inv_processing/data/data_dil_lines_{0}.data'.format(image_name), 'rb') as filehandle:
         # read the data as binary data stream
         line_elements = pickle.load(filehandle)
 
@@ -233,7 +234,7 @@ def main(image_name, image_path):
 
     # Clear horizontal and vertical lines from wide ones:
     for line in vert_lines[:]:
-        if line['w'] >= line['h'] // 25:
+        if line['w'] >= line['h'] // 15:
             vert_lines.remove(line)
     for line in hor_lines[:]:
         if line['h'] >= line['w'] // 25:

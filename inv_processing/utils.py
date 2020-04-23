@@ -15,18 +15,18 @@ def show_image(image):
     cv2.imshow("image", image)
     cv2.waitKey(0)
 
-def save_image(image, filename):
+def save_image(image, path):
     """Save image in the specialized folder.
 
     Args:
         image (np.array): image to save
-        filename (str): image path
+        path (str): image path
 
     Returns:
         None
 
     """
-    cv2.imwrite(filename, image)
+    cv2.imwrite(path, image)
 
 def grayscale_image(image):
     """Grayscale the image.

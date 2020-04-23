@@ -30,10 +30,14 @@ def parsing():
     return img_names, folder_path
 
 def create_folders(image_name):
-    if not exists('results/{0}'.format(image_name)):
-        makedirs('results/{0}'.format(image_name))
-    if not exists('results/{0}/binary'.format(image_name)):
-        makedirs('results/{0}/binary'.format(image_name))
+    if not exists(f'results/{image_name}'):
+        makedirs(f'results/{image_name}')
+    if not exists(f'results/{image_name}/binary'):
+        makedirs(f'results/{image_name}/binary')
+    if not exists(f'results/{image_name}/text'):
+        makedirs(f'results/{image_name}/text')
+    if not exists(f'results/{image_name}/lines'):
+        makedirs(f'results/{image_name}/lines')
 
 def main():
     img_names, folder_path = parsing()
