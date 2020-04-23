@@ -234,7 +234,7 @@ def main(image_name, image_path):
         avg_height = pickle.load(filehandle)
 
     # Load horizontal lines elem
-    with open('inv_processing/data/data_hor_lines_{0}.data'.format(image_name), 'rb') as filehandle:
+    with open('inv_processing/data/data_lines_hor_{0}.data'.format(image_name), 'rb') as filehandle:
         # read the data as binary data stream
         hor_lines = pickle.load(filehandle)
 

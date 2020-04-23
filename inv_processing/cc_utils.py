@@ -4,7 +4,7 @@ import cv2
 from inv_processing import utils
 
 def display_centroids(image, centroids):
-    """Display centroids for connected components.
+    """Display centroids for each connected component.
 
     Args:
         image (np.array): background image to draw centroids on

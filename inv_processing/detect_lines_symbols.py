@@ -1,181 +1,183 @@
-import numpy as np
-import cv2
+"""Binarizing and detection of text and lines"""
 from copy import deepcopy as copy
 import pickle
+import numpy as np
+import cv2
 from inv_processing import utils, cc_utils
 
-def display_labels(labels, retval, indexes_to_remove, thresh, image_name):
-    full_mask = thresh[:]
-    full_mask = 0
-    for label in range(1, retval):
-        if label not in indexes_to_remove:
+def make_lines_mask(labels, lines_indexes, thresh):
+    """Make 'lines' mask from labels of connected components.
+
+        Args:
+            labels (np.array): labels of CC
+            lines_indexes (list): indexes of 'lines' in labels
+            thresh (np.array): thresholded image
+
+        Returns:
+            lines_mask (np.array): 'lines' mask
+
+    """
+    lines_mask = thresh[:] # TODO: numpy.shape TODO: more general function
+    lines_mask = 0
+    for label in range(1, len(labels)):
+        if label in lines_indexes:
             mask = np.array(labels, dtype=np.uint8)
             mask[labels == label] = 255
             mask[labels != label] = 0
-            full_mask = full_mask + mask
-    if not full_mask.any():
-        full_mask = thresh[:]
-        full_mask[0:thresh.shape[0], 0:thresh.shape[1]] = 0
-    utils.save_image(full_mask, "results/{0}/binary/{0}_lines_full.jpg".format(image_name))
-    return full_mask
+            lines_mask = lines_mask + mask
+    if not lines_mask.any():
+        lines_mask = thresh[:]
+        lines_mask[0:thresh.shape[0], 0:thresh.shape[1]] = 0
+    return lines_mask
 
-def detect_lines(stats, avg_height):
-    stats_copy = copy(stats)
-    indexes_to_remove = []
-    for ind, stat in enumerate(stats_copy[:]):
-        # 100 (50) - previous
-        # Не таблицы и линии:
-        # Если ширина меньше чем 30 высот и высота меньше чем 5 средних высот
-        if stat[2] < 30 * stat[3] and stat[3] < 4 * avg_height:
-            stats.remove(stat)
-            indexes_to_remove.append(ind + 1)
-    return stats, indexes_to_remove
+def detect_lines(stats, avg_height, prop_wh=30, prop_maxh=4):
+    """Detect 'lines' - objects that are definetily differ from text.
 
-def isolate_lines(src, structuring_element):
-    cv2.erode(src, structuring_element, src, (-1, -1)) # makes white spots smaller
-    cv2.dilate(src, structuring_element, src, (-1, -1)) # makes white spots bigger
+    If either (width < prop_wh * heigh) or (heigh < prop_maxh * avg_height):
+    The object is a 'line'.
 
-def save_data(image, stats, all_text_stats, stats_lines, dil_lines_stats,
-              vert_lines_stats, hor_lines_stats, avg_height, image_name):
-    # TODO: temporary data
-    # TODO: CC class
-    # Save data
-    cc_utils.dump_stats(image_name, all_text_stats,
-                        cc_type='text')
-    cc_utils.dump_stats(image_name, stats_lines,
-                        cc_type='lines')
-    cc_utils.dump_stats(image_name, vert_lines_stats,
-                        cc_type='vert_lines')
-    cc_utils.dump_stats(image_name, hor_lines_stats,
-                        cc_type='hor_lines')
-    cc_utils.dump_stats(image_name, dil_lines_stats,
-                        cc_type='dil_lines')
-    # Save debug images
-    cc_utils.save_bboxes(image, image_name,
-                         stats, cc_type='all_CC')
-    cc_utils.save_bboxes(image, image_name,
-                         vert_lines_stats, cc_type='lines_vert')
-    cc_utils.save_bboxes(image, image_name,
-                         hor_lines_stats, cc_type='lines_hor')
-    cc_utils.save_bboxes(image, image_name,
-                         stats_lines, cc_type='lines')
-    cc_utils.save_bboxes(image, image_name,
-                         all_text_stats, cc_type='all_text')
-    cc_utils.save_bboxes(image, image_name,
-                         dil_lines_stats, cc_type='dil_lines')
-    # Write avg_height to file
-    with open("inv_processing/data/data_avg_h_{0}.data".format(image_name), 'wb') as outfile:
-        # store the data as binary data stream
-        pickle.dump(avg_height, outfile)
+        Args:
+            stats (list): CC stats converted to list
+            avg_height (int): mean height of CC
+            prop_wh (int, optional): refer to the description. Defaults to 30.
+            prop_maxh (int, optional): refer to the description. Defaults to 4.
 
+        Returns:
+            stats_lines (list): CC 'line' stats
+            line_indexes (list): indexes of lines in original stats
+
+    """
+    stats_lines, lines_indexes = [], []
+    for ind, stat in enumerate(stats):
+        if (stat[2] < prop_wh * stat[3]) ^ (stat[3] < prop_maxh * avg_height):
+            stats_lines.append(stat)
+            lines_indexes.append(ind + 1)
+    return stats_lines, lines_indexes
+
+def highlight_lines(mask, struct_el):
+    """Highlight lines on the mask
+
+        Args:
+            mask (np.array): binary mask
+            struct_el (np.array): structuring element for forms highlighting
+
+        Returns:
+            lines_mask (np.array): lines of specified form
+
+    """
+    lines_mask = cv2.erode(mask, struct_el) # erosion: object size decreases
+    lines_mask = cv2.dilate(lines_mask, struct_el) # dilation: object size increases
+    return lines_mask
+
+def mask_to_line_stats(mask, avg_height):
+    """Extract line_stats from mask
+
+        Args:
+            mask (np.array): mask from which line_stats are extracted
+            avg_heigh (int): mean height of CC
+
+        Returns:
+            line_stats (list): CC line stats converted to list
+
+    """
+    _, _, stats_np, _ = cv2.connectedComponentsWithStats(mask, connectivity=8)
+    stats = stats_np[1:].tolist()
+    line_stats, _ = detect_lines(stats, avg_height)
+    return line_stats
 
 def main(image_name, image_path):
+    """Main script for detecting text and lines"""
     image = cv2.imread(image_path)
 
-    # Threshold image
+    # Thresholding:
     thresh = utils.threshold_image(image)
     thresh = 255 - thresh
     binary_folder = f'results/{image_name}/binary'
     utils.save_image(thresh, path=f'{binary_folder}/{image_name}_binary.jpg')
 
-    # Get connected components for whole binary image
-    retval, labels, stats_np, _ = cv2.connectedComponentsWithStats(thresh, connectivity=8)
+    # Get connected components for whole binary image:
+    _, labels, stats_np, _ = cv2.connectedComponentsWithStats(thresh, connectivity=8)
+    stats = stats_np[1:].tolist() # TODO: numpy array
 
-    # Get stats for text elements
-    stats = stats_np[1:retval].tolist() # TODO: numpy array
+    # Get stats for text elements:
     avg_height = cc_utils.mean_height(stats)
     text_el_stats = cc_utils.detect_text_elements(stats, avg_height)
-    cc_utils.save_bboxes(image, image_name, text_el_stats,
+    cc_utils.save_bboxes(image, image_name, text_el_stats, # Debug text bboxes saving
                          cc_type='text_1', subfolder='text')
 
-    # Get stats for lines and tables
-    stats_copy_1 = copy(stats)
-    stats_lines, indexes_to_remove_for_lines = detect_lines(stats_copy_1, avg_height)
-
-    cc_utils.save_bboxes(image, image_name, stats_lines,
+    # Get stats for 'lines':
+    stats_lines, lines_indexes = detect_lines(stats, avg_height)
+    cc_utils.save_bboxes(image, image_name, stats_lines, # Debug 'lines' saving
                          cc_type='detect_lines', subfolder='lines')
 
-    # Save lines and tables mask
-    full_lines_mask = display_labels(labels, retval, indexes_to_remove_for_lines, thresh, image_name)
+    # Save 'lines' mask:
+    lines_mask = make_lines_mask(labels, lines_indexes, thresh) # TODO: fix retval
+    utils.save_image(lines_mask, f'{binary_folder}/{image_name}_lines_full.jpg')
 
-    # Isolate horizontal and vertical lines using morphological operations
-    # SCALE = 35
+    # Isolate horizontal and vertical lines using morphological operations:
     scale = 50
+    horizontal_mask, vertical_mask = copy(lines_mask), copy(lines_mask)
 
-    horizontal = full_lines_mask.copy()
-    vertical = full_lines_mask.copy()
+    horizontal_size = int(horizontal_mask.shape[1] / scale)
+    horizontal_structure = cv2.getStructuringElement(cv2.MORPH_RECT, (horizontal_size, 1))
+    horizontal_mask = highlight_lines(horizontal_mask, horizontal_structure)
 
-    horizontal_size = int(horizontal.shape[1] / scale)
-    horizontal_structure = cv2.getStructuringElement(cv2.MORPH_RECT,
-        (horizontal_size, 1))
-    isolate_lines(horizontal, horizontal_structure)
+    vertical_size = int(vertical_mask.shape[0] / scale) # TODO: mb diff scale for vert?
+    vertical_structure = cv2.getStructuringElement(cv2.MORPH_RECT, (1, vertical_size))
+    vertical_mask = highlight_lines(vertical_mask, vertical_structure)
 
-    vertical_size = int(vertical.shape[0] / scale)
-    vertical_structure = cv2.getStructuringElement(cv2.MORPH_RECT,
-        (1, vertical_size))
-    isolate_lines(vertical, vertical_structure)
-
-    # Get lines from morphological operations
-    lines_mask = horizontal + vertical
+    # Get lines from morphological operations:
+    morph_lines_mask = horizontal_mask + vertical_mask
     kernel = np.ones((3, 3), np.uint8)
-    dilation_lines = cv2.dilate(lines_mask, kernel, iterations=1)
+    dilated_lines = cv2.dilate(morph_lines_mask, kernel, iterations=1)
+    utils.save_image(dilated_lines, # Debug dilated_lines saving
+                     f'{binary_folder}/{image_name}_lines_dilated.jpg')
 
-    # Get attached text elements from lines and tables:
-    rem_elem_mask = full_lines_mask - dilation_lines
-    utils.save_image(dilation_lines, "results/{0}/binary/{0}_lines_kernel_dilated.jpg".format(image_name))
-    utils.save_image(rem_elem_mask, "results/{0}/binary/{0}_detached_elem.jpg".format(image_name))
+    # Get detached elements from lines and tables:
+    detached_elem_mask = lines_mask - dilated_lines
+    detached_elem_path = f'{binary_folder}/{image_name}_detached_elem.jpg'
+    utils.save_image(detached_elem_mask, detached_elem_path)
 
-    elem_image_path = "results/{0}/binary/{0}_detached_elem.jpg".format(image_name)
-    elem_image = cv2.imread(elem_image_path)
+    # Read detached elem image and threshold it in a simplier way:
+    elem_image = cv2.imread(detached_elem_path) # TODO: avoid image reading
     elem_gray_image = utils.grayscale_image(elem_image)
-    _, thresh1 = cv2.threshold(elem_gray_image, 127, 255, cv2.THRESH_BINARY)
+    _, elem_thresh = cv2.threshold(elem_gray_image, 127, 255, cv2.THRESH_BINARY)
 
-    # Connected components for remaining text elements:
-    retval_rem, _, stats_np_rem, _ = cv2.connectedComponentsWithStats(thresh1, connectivity=8)
-    stats_np_rem = stats_np_rem[1: retval_rem]
-    stats_rem = stats_np_rem.tolist()
-    stats_copy_rem = copy(stats_rem)
+    # Connected components for detached text elements:
+    _, _, stats_np_det, _ = cv2.connectedComponentsWithStats(elem_thresh, connectivity=8)
+    stats_det = stats_np_det[1:].tolist()
 
-    # Detect text from these elements (might be lines from substraction)
-    # remaining_text_el_stats = detect_text_for_rem(stats_copy_rem)
-    remaining_text_el_stats = cc_utils.detect_text_elements(stats_copy_rem, avg_height)
-
+    # Detect text from detached elements (might be lines, stamps, etc.):
+    remaining_text_el_stats = cc_utils.detect_text_elements(stats_det, avg_height)
     cc_utils.save_bboxes(image, image_name, remaining_text_el_stats,
                          cc_type='text_2', subfolder='text')
 
-    # Combine all text elements
+    # Combine all text elements:
     all_text_stats = text_el_stats + remaining_text_el_stats
 
-    # Connected components for dilated lines:
-    retval_dil, _, stats_np_dil, _ = cv2.connectedComponentsWithStats(dilation_lines, connectivity=8)
-    stats_np_dil = stats_np_dil[1: retval_dil]
+    # Connected components for lines:
+    dil_lines_stats = mask_to_line_stats(dilated_lines, avg_height)
+    vert_lines_stats = mask_to_line_stats(vertical_mask, avg_height)
+    hor_lines_stats = mask_to_line_stats(horizontal_mask, avg_height)
 
-    stats_dil = stats_np_dil.tolist()
-    stats_copy_dil = copy(stats_dil)
-    dil_lines_stats, _ = detect_lines(stats_copy_dil, avg_height)
-
-    # Connected components for vertical lines:
-    retval_vert, _, stats_np_vert, centroids_vert = cv2.connectedComponentsWithStats(vertical, connectivity=8)
-    stats_np_vert = stats_np_vert[1: retval_vert]
-    centroids_vert = centroids_vert[1:retval_vert]
-    stats_vert = stats_np_vert.tolist()
-    stats_copy_vert = copy(stats_vert)
-    vert_lines_stats, _ = detect_lines(stats_copy_vert, avg_height)
-
-    # Connected components for horizontal lines:
-    retval_hor, _, stats_np_hor, centroids_hor = cv2.connectedComponentsWithStats(horizontal, connectivity=8)
-    stats_np_hor = stats_np_hor[1: retval_hor]
-    centroids_hor = centroids_hor[1:retval_hor]
-    stats_hor = stats_np_hor.tolist()
-    stats_copy_hor = copy(stats_hor)
-    hor_lines_stats, _ = detect_lines(stats_copy_hor, avg_height)
-
-    save_data(image, stats, all_text_stats, stats_lines, dil_lines_stats,
-              vert_lines_stats, hor_lines_stats, avg_height, image_name)
+    # Save all the data:
+    cc_type_dict = {'conn_comp': stats,
+                    'text': all_text_stats,
+                    'lines': stats_lines,
+                    'lines_vert': vert_lines_stats,
+                    'lines_hor': hor_lines_stats,
+                    'lines_dil': dil_lines_stats}
+    for key in cc_type_dict:
+        cc_utils.dump_stats(image_name, cc_type_dict[key],
+                            cc_type=key)
+        cc_utils.save_bboxes(image, image_name,
+                             cc_type_dict[key], cc_type=key)
+    with open(f"inv_processing/data/data_avg_h_{image_name}.data", 'wb') as outfile:
+        # store the data as binary data stream
+        pickle.dump(avg_height, outfile)
 
 if __name__ == "__main__":
     _IMAGE_NAME = "image_test"
     _IMAGE_PATH = "{}.jpg".format(_IMAGE_NAME)
     main(_IMAGE_NAME, _IMAGE_PATH)
     print(__name__)
-

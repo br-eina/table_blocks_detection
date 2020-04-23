@@ -204,17 +204,17 @@ def main(image_name, image_path):
         text_blocks_rows = pickle.load(filehandle)
 
     # Load lines elem
-    with open('inv_processing/data/data_dil_lines_{0}.data'.format(image_name), 'rb') as filehandle:
+    with open('inv_processing/data/data_lines_dil_{0}.data'.format(image_name), 'rb') as filehandle:
         # read the data as binary data stream
         line_elements = pickle.load(filehandle)
 
     # Load vertical lines elem
-    with open('inv_processing/data/data_vert_lines_{0}.data'.format(image_name), 'rb') as filehandle:
+    with open('inv_processing/data/data_lines_vert_{0}.data'.format(image_name), 'rb') as filehandle:
         # read the data as binary data stream
         vert_lines = pickle.load(filehandle)
 
     # Load horizontal lines elem
-    with open('inv_processing/data/data_hor_lines_{0}.data'.format(image_name), 'rb') as filehandle:
+    with open('inv_processing/data/data_lines_vert_{0}.data'.format(image_name), 'rb') as filehandle:
         # read the data as binary data stream
         hor_lines = pickle.load(filehandle)
 

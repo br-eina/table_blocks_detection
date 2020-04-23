@@ -1,3 +1,4 @@
+"""Start document"""
 from argparse import ArgumentParser
 from os import listdir, makedirs
 from os.path import isfile, join, exists
@@ -10,6 +11,7 @@ from inv_processing import (detect_lines_symbols,
 DEF_FOLDER = 'docs/'
 
 def parsing():
+    """Parsing arguments from cmd"""
     parser = ArgumentParser(description='Detect chars, textblocks and tables on invoice images')
     parser.add_argument('--sel', metavar='SELECTION_TYPE', default='folder', type=str,
                         help='Type "files" to select files (default: folder).')
@@ -30,16 +32,28 @@ def parsing():
     return img_names, folder_path
 
 def create_folders(image_name):
-    if not exists(f'results/{image_name}'):
-        makedirs(f'results/{image_name}')
-    if not exists(f'results/{image_name}/binary'):
-        makedirs(f'results/{image_name}/binary')
-    if not exists(f'results/{image_name}/text'):
-        makedirs(f'results/{image_name}/text')
-    if not exists(f'results/{image_name}/lines'):
-        makedirs(f'results/{image_name}/lines')
+    """Create folders if they don't exist
+
+        Args:
+            image_name (str): image name
+
+        Returns:
+            None
+
+    """
+    folders = [f'inv_processing/data',
+               f'results',
+               f'results/{image_name}',
+               f'results/{image_name}/binary',
+               f'results/{image_name}/text',
+               f'results/{image_name}/lines',
+               f'data_not_in_table']
+    for folder in folders:
+        if not exists(folder):
+            makedirs(folder)
 
 def main():
+    """Launch invoice processing"""
     img_names, folder_path = parsing()
     print(f'{len(img_names)} images to process: \n')
     pbar = tqdm(img_names)

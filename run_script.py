@@ -8,10 +8,16 @@ from inv_processing import (detect_lines_symbols,
                             detect_table)
 
 def create_folders(image_name):
-    if not exists('results/{0}'.format(image_name)):
-        makedirs('results/{0}'.format(image_name))
-    if not exists('results/{0}/binary'.format(image_name)):
-        makedirs('results/{0}/binary'.format(image_name))
+    folders = [f'inv_processing/data',
+               f'results',
+               f'results/{image_name}',
+               f'results/{image_name}/binary',
+               f'results/{image_name}/text',
+               f'results/{image_name}/lines',
+               f'data_not_in_table']
+    for folder in folders:
+        if not exists(folder):
+            makedirs(folder)
 
 def main():
     image_name = 'image_test'
