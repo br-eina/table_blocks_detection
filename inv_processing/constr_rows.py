@@ -1,22 +1,9 @@
 import cv2
-import copy
+from copy import deepcopy as copy
 import random
 from collections import Counter
 import pickle
 from inv_processing import utils
-
-def remove_empty_rows(rows):
-    for row in rows[:]:
-        if len(row) <= 1:
-            rows.remove(row)
-    return rows
-
-def sort_rows(rows):
-    sorted_rows = []
-    for row in rows:
-        row = sorted(row, key=lambda el: (el['x'], el['y']))
-        sorted_rows.append(row)
-    return sorted_rows
 
 def show_lines(image, lines_elem):
     image_to_show = image.copy()
@@ -64,7 +51,7 @@ def show_conn_comp_in_row(image, rows, image_name):
     utils.save_image(image_to_show, "results/{0}/{0}_char_rows.jpg".format(image_name))
 
 def save_rows(rows, image_name):
-    with open("inv_processing/data/data_rows_ccomp_{0}.data".format(image_name), 'wb') as outfile:
+    with open("inv_processing/data/rows_ccomp_{0}.data".format(image_name), 'wb') as outfile:
         pickle.dump(rows, outfile)
 
 
@@ -217,73 +204,36 @@ def check_if_line_in_roi(elem, roi, avg_height):
 def main(image_name, image_path):
 
     image = cv2.imread(image_path)
+    data_folder = 'inv_processing/data'
 
-    # Load text elem
-    with open('inv_processing/data/data_text_{0}.data'.format(image_name), 'rb') as filehandle:
-        # read the data as binary data stream
-        text_elements = pickle.load(filehandle)
-
-    # Load lines elem
-    with open('inv_processing/data/data_lines_{0}.data'.format(image_name), 'rb') as filehandle:
-        # read the data as binary data stream
-        line_elements = pickle.load(filehandle)
-
-    # Load average height
-    with open('inv_processing/data/data_avg_h_{0}.data'.format(image_name), 'rb') as filehandle:
-        # read the data as binary data stream
-        avg_height = pickle.load(filehandle)
-
-    # Load horizontal lines elem
-    with open('inv_processing/data/data_lines_hor_{0}.data'.format(image_name), 'rb') as filehandle:
-        # read the data as binary data stream
-        hor_lines = pickle.load(filehandle)
-
-    image_to_show = image.copy()
-    for element in text_elements:
-        # image_to_show = image.copy()
-        p_1 = (element['x'], element['y'])
-        p_2 = (element['x'] + element['w'], element['y'] + element['h'])
-        cv2.rectangle(image_to_show, p_1, p_2, (0, 0, 255), 3)
-    utils.save_image(image_to_show, 'results/{0}/{0}_all_text.jpg'.format(image_name))
-
-    # Make ROI for 4th line:
-    if len(line_elements) > 0:
-        line = line_elements[0]
-        roi = {}
-        roi['x'] = line['x']
-        roi['y'] = line['y']
-        roi['w'] = line['w']
-        roi['h'] = 15 * 5 * avg_height
-
-    if len(line_elements) > 0:
-        # Detect text elem in ROI
-        text_elem_in_roi = []
-        for text_elem in text_elements:
-            if check_if_el_in_roi(text_elem, roi) == 1:
-                text_elem_in_roi.append(text_elem)
+    # Load the data
+    with open(f'{data_folder}/text_{image_name}.data', 'rb') as datafile:
+        text_elements = pickle.load(datafile)
+    with open(f'{data_folder}/avg_h_{image_name}.data', 'rb') as datafile:
+        avg_height = pickle.load(datafile)
+    with open(f'{data_folder}/lines_hor_{image_name}.data', 'rb') as datafile:
+        hor_lines = pickle.load(datafile)
 
     # Construct lines from text elem in:
-    remain_text = copy.deepcopy(text_elements)
+    remain_text = copy(text_elements)
     rows = [[] for _ in range(len(text_elements) // 2)]
 
     rows[0].append(remain_text[0])
     remain_text.remove(remain_text[0])
 
-    # Формируем ряды из текстовых элементов
+    # Construct rows from text elements:
     for row_ind, row in enumerate(rows):
-        if len(remain_text) == 0:
-            break
         added_elem_list = []
-        rows[row_ind].append(remain_text[0])
-        remain_text.remove(remain_text[0])
-
+        rows[row_ind].append(remain_text[0]) # Add first remaining element into new row
+        added_elem_list.append(remain_text[0])
+        remain_text.remove(remain_text[0]) # Remove added element from remaining elements
         if len(remain_text) == 0:
             break
-        added_elem_list.append(remain_text[0])
-        # Append added_elem_list
         add_elem_in_row(added_elem_list, remain_text, rows, row_ind)
+        if len(remain_text) == 0:
+            break
 
-    rows = remove_empty_rows(rows)
+    rows = utils.remove_empty_rows(rows)
 
     # Find row positions:
     row_positions = []
@@ -323,7 +273,7 @@ def main(image_name, image_path):
 
 
     # Connect small horizontal elements:
-    remain_rows = copy.deepcopy(rows)
+    remain_rows = copy(rows)
     new_rows = [[] for _ in range(len(rows))]
 
     # Формируем новый ряд из текстовых элементов (соединенные малые части):
@@ -336,7 +286,7 @@ def main(image_name, image_path):
         remain_rows[row_ind].remove(consid_elem)
         add_elem_with_condit(consid_elem, remain_rows, new_rows, row_ind, mean_dist)
 
-    rows = sort_rows(new_rows)
+    rows = utils.sort_rows_x_y(new_rows)
 
     # Find row positions:
     row_positions = []
@@ -388,7 +338,7 @@ def main(image_name, image_path):
     if len(new_rows) != 0:
         rows = rows + new_rows
 
-    rows = sort_rows(rows)
+    rows = utils.sort_rows_x_y(rows)
 
     show_conn_comp_in_row(image, rows, image_name)
 

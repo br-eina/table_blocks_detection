@@ -172,7 +172,7 @@ def main(image_name, image_path):
                             cc_type=key)
         cc_utils.save_bboxes(image, image_name,
                              cc_type_dict[key], cc_type=key)
-    with open(f"inv_processing/data/data_avg_h_{image_name}.data", 'wb') as outfile:
+    with open(f"inv_processing/data/avg_h_{image_name}.data", 'wb') as outfile:
         # store the data as binary data stream
         pickle.dump(avg_height, outfile)
 

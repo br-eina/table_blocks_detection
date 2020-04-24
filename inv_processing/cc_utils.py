@@ -3,12 +3,15 @@ import pickle
 import cv2
 from inv_processing import utils
 
-def display_centroids(image, centroids):
-    """Display centroids for each connected component.
+def display_centroids(image, centroids, rad=6, color=(0, 0, 255), width=-1):
+    """Display centroids as circles for each connected component.
 
     Args:
-        image (np.array): background image to draw centroids on
-        centroids (np.array): coordinates of centroids
+        image (np.array): background image to draw centroids on.
+        centroids (np.array): coordinates of centroids.
+        rad (int): radius of centroid. Defaults to 6.
+        color (tuple, optional): color (B, G, R) of centroids. Defaults to (0, 0, 255): red.
+        width (int, optional): width of centroids. Defaults to -1 (fill the circle).
 
     Returns:
         None
@@ -16,25 +19,27 @@ def display_centroids(image, centroids):
     """
     image_to_show = image.copy()
     for coord in centroids:
-        cv2.circle(image_to_show, (int(coord[0]), int(coord[1])), 6, (0, 0, 255), -1)
+        cv2.circle(image_to_show, (int(coord[0]), int(coord[1])), rad, color, width)
     utils.show_image(image_to_show)
 
-def display_bboxes(image, stats):
+def display_bboxes(image, stats, color=(0, 0, 255), width=3):
     """Display bboxes for each connected component.
 
         Args:
-            image (np.array): background image to draw bboxes on
-            stats (list): CC stats converted to list
+            image (np.array): background image to draw bboxes on.
+            stats (list): CC stats converted to list.
+            color (tuple, optional): color (B, G, R) of bbox. Defaults to (0, 0, 255): red.
+            width (int, optional): width of centroids. Defaults to 3.
 
         Returns:
             None
 
     """
-    image_to_show = image.copy()
+    image_to_show = image.copy() # TODO: combine display_bboxes() and save_bboxes
     for stat in stats:
         p_1 = (stat[0], stat[1])
         p_2 = (stat[0] + stat[2], stat[1] + stat[3])
-        cv2.rectangle(image_to_show, p_1, p_2, (0, 0, 255))
+        cv2.rectangle(image_to_show, p_1, p_2, color, width)
     utils.show_image(image_to_show)
 
 def mean_height(stats):
@@ -58,8 +63,8 @@ def remove_small_objects(stats, height=3, width=6):
 
     Args:
         stats (list): CC stats converted to list
-        h (int, optional): height of CC. Defaults to 3.
-        w (int, optional): width of CC. Defaults to 6.
+        height (int, optional): height of CC. Defaults to 3.
+        width (int, optional): width of CC. Defaults to 6.
 
     Returns:
         processed_stats (list): stats without small CC
@@ -72,7 +77,7 @@ def remove_small_objects(stats, height=3, width=6):
             processed_stats.append(stat)
     return processed_stats
 
-def save_bboxes(image, image_name, stats, cc_type, width=3, subfolder=None):
+def save_bboxes(image, image_name, stats, cc_type, color=(0, 0, 255), width=3, subfolder=None):
     """Save the image with bboxes around each connected component.
 
         Args:
@@ -81,7 +86,8 @@ def save_bboxes(image, image_name, stats, cc_type, width=3, subfolder=None):
             stats (list): CC stats converted to list.
             cc_type (str): Type of CC (line, text, ...).
                 Defines the name of saved image.
-            width (int, optional): width of BB. Defaults to 3.
+            color (tuple, optional): color (B, G, R) of bbox. Defaults to (0, 0, 255): red.
+            width (int, optional): width of bbox. Defaults to 3.
             subfolder (str, optional): specified subfolder in results/{imagename}.
                 Defaults to None.
 
@@ -93,7 +99,7 @@ def save_bboxes(image, image_name, stats, cc_type, width=3, subfolder=None):
     for stat in stats:
         p_1 = (stat[0], stat[1])
         p_2 = (stat[0] + stat[2], stat[1] + stat[3])
-        cv2.rectangle(image_to_show, p_1, p_2, (0, 0, 255), width)
+        cv2.rectangle(image_to_show, p_1, p_2, color, width)
     if subfolder:
         path = f'results/{image_name}/{subfolder}/{image_name}_{cc_type}.jpg'
     else:
@@ -115,14 +121,14 @@ def dump_stats(image_name, stats, cc_type, folder='inv_processing/data'):
             None
 
     """
-    data = []
+    data = [] # TODO: mb construct class of symbol
     for stat in stats:
         data.append({'x': stat[0],
                      'y': stat[1],
                      'w': stat[2],
                      'h': stat[3],
                      'A': stat[4]})
-    filename = f'{folder}/data_{cc_type}_{image_name}.data'
+    filename = f'{folder}/{cc_type}_{image_name}.data'
     with open(filename, 'wb') as outfile:
         pickle.dump(data, outfile)
 

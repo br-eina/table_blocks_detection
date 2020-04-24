@@ -67,7 +67,7 @@ def detach_blocks_by_vert_lines(element_1, element_2, vert_lines):
         return 0
 
 def save_text_blocks(text_blocks_rows, image_name):
-    with open("inv_processing/data/data_text_blocks_{0}.data".format(image_name), 'wb') as outfile:
+    with open("inv_processing/data/text_blocks_{0}.data".format(image_name), 'wb') as outfile:
         pickle.dump(text_blocks_rows, outfile)
 
 def save_cropped_blocks(image, text_blocks_rows, image_name):
@@ -92,18 +92,18 @@ def main(image_name, image_path):
     image = cv2.imread(image_path)
 
     # Load text elem
-    with open('inv_processing/data/data_rows_ccomp_{0}.data'.format(image_name), 'rb') as filehandle:
+    with open('inv_processing/data/rows_ccomp_{0}.data'.format(image_name), 'rb') as filehandle:
         # read the data as binary data stream
         rows = pickle.load(filehandle)
 
     # Load vertical lines elem
-    with open('inv_processing/data/data_lines_vert_{0}.data'.format(image_name), 'rb') as filehandle:
+    with open('inv_processing/data/lines_vert_{0}.data'.format(image_name), 'rb') as filehandle:
         # read the data as binary data stream
         vert_lines = pickle.load(filehandle)
 
     all_distances_rows = []
     # Read all distances csv
-    with open('inv_processing/data/distance_data.csv', 'r') as csvFile:
+    with open('distance_data.csv', 'r') as csvFile:
         reader = csv.reader(csvFile)
         for row in reader:
             all_distances_rows.append(row)

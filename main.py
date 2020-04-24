@@ -47,6 +47,8 @@ def create_folders(image_name):
                f'results/{image_name}/binary',
                f'results/{image_name}/text',
                f'results/{image_name}/lines',
+               f'results/{image_name}/rows',
+               f'results/{image_name}/table_debug',
                f'data_not_in_table']
     for folder in folders:
         if not exists(folder):
