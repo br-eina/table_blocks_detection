@@ -1,7 +1,10 @@
 """Provides high-level support for CV algorithms and docs processing."""
 from random import randint as rand
+from os import makedirs
+from os.path import exists
 import pickle
 import cv2
+
 
 
 def show_image(image):
@@ -206,3 +209,17 @@ def load_data(path):
     with open(path, 'rb') as datafile:
         data = pickle.load(datafile)
     return data
+
+def create_folders(*folders):
+    """Create folders if they don't exist
+
+        Args:
+            folders (unnamed args): folders to create
+
+        Returns:
+            None
+
+    """
+    for folder in folders:
+        if not exists(folder):
+            makedirs(folder)

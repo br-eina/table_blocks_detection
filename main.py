@@ -7,16 +7,18 @@ from inv_processing import (detect_lines_symbols,
                             constr_rows,
                             constr_blocks,
                             detect_table)
+from inv_processing.utils import create_folders
 
-DEF_FOLDER = 'docs/'
+
+_DEF_FOLDER = 'docs/'
 
 def parsing():
     """Parsing arguments from cmd"""
     parser = ArgumentParser(description='Detect chars, textblocks and tables on invoice images')
     parser.add_argument('--sel', metavar='SELECTION_TYPE', default='folder', type=str,
                         help='Type "files" to select files (default: folder).')
-    parser.add_argument('--fol', metavar='FOLDER_PATH', default=DEF_FOLDER, type=str,
-                        help='Path of the folder (default: docs/).')
+    parser.add_argument('--fol', metavar='FOLDER_PATH', default=_DEF_FOLDER, type=str,
+                        help='Path of the folder (default: "docs/").')
     parser.add_argument('--img', metavar='IMG_NAME', type=str, nargs='+',
                         help='Images to process. Type names without extension.')
     args = parser.parse_args()
@@ -31,37 +33,25 @@ def parsing():
         raise ValueError('SELECTION_TYPE must be "files" or "folder"')
     return img_names, folder_path
 
-def create_folders(image_name):
-    """Create folders if they don't exist
-
-        Args:
-            image_name (str): image name
-
-        Returns:
-            None
-
-    """
-    folders = [f'inv_processing/data',
-               f'results',
-               f'results/{image_name}',
-               f'results/{image_name}/binary',
-               f'results/{image_name}/text',
-               f'results/{image_name}/lines',
-               f'results/{image_name}/rows',
-               f'results/{image_name}/table_debug',
-               f'data_not_in_table']
-    for folder in folders:
-        if not exists(folder):
-            makedirs(folder)
-
 def main():
     """Launch invoice processing"""
+    folders_init = ['inv_processing/data',
+                    'results',
+                    'data_not_in_table']
+    create_folders(*folders_init)
     img_names, folder_path = parsing()
     print(f'{len(img_names)} images to process: \n')
     pbar = tqdm(img_names)
     for ind_img, image_name in enumerate(pbar):
         pbar.set_description(f'Image #{ind_img+1}: {image_name}')
-        create_folders(image_name)
+        # Create folders for debugging
+        folders_debug = [f'results/{image_name}',
+                         f'results/{image_name}/binary',
+                         f'results/{image_name}/text',
+                         f'results/{image_name}/lines',
+                         f'results/{image_name}/rows',
+                         f'results/{image_name}/table_debug']
+        create_folders(*folders_debug)
         image_path = f'{folder_path + image_name}.jpg'
         # Script sequence
         detect_lines_symbols.main(image_name, image_path)
