@@ -21,6 +21,7 @@ tesserocr.pyx
 tox.ini
 Dockerfile
 README.rst
+annotator/VGG Image Annotator/
 
 
 
