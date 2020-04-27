@@ -1,10 +1,6 @@
-def create_folders(*folders):
-    for folder in folders:
-        print(folder)
+test = 'inv-0001.jpg'
+print(test.find('-'))
 
-f_list = ['docs/', '1212/', '1111/']
-create_folders(*f_list)
+print(test[:test.find('-')])
 
-create_folders('test_folder/')
-
-create_folders('11/', '22/')
+print(test.split('-')[0])
