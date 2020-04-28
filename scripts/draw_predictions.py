@@ -1,9 +1,10 @@
-from inv_processing import utils
+"""Draw predictions on the test images"""
 import cv2
 import pandas as pd
-
+from inv_processing import utils
 
 def main():
+    """Read dataset with 'prediction' field and draw predictions on the images"""
     path_df = 'pred_blocks.csv'
     df = pd.read_csv(path_df)
 
