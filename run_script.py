@@ -6,6 +6,7 @@ from inv_processing import (detect_lines_symbols,
                             constr_rows,
                             constr_blocks,
                             detect_table)
+from scripts import draw_predictions
 
 def create_folders(image_name):
     folders = [f'inv_processing/data',
@@ -20,11 +21,11 @@ def create_folders(image_name):
             makedirs(folder)
 
 def main():
-    image_name = 'image_test'
-    image_path = f'{image_name}.jpg'
-    create_folders(image_name)
+    # image_name = 'image_test'
+    # image_path = f'{image_name}.jpg'
+    # create_folders(image_name)
 
-    detect_lines_symbols.main(image_name, image_path)
+    draw_predictions.main()
 
 if __name__ == "__main__":
     main()
