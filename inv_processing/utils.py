@@ -124,7 +124,7 @@ def draw_single_bbox(image, element, color=(0, 0, 255), width=3):
     p_2 = (element['x'] + element['w'], element['y'] + element['h'])
     cv2.rectangle(image, p_1, p_2, color, width)
 
-def bounding_boxes(image, image_name, method, element=None, row=None, rows=None,
+def bounding_boxes(image, image_name, method, element=None, row=None, rows=None, pred=False,
                    folder=None, path=None, save=True, show=False, color=(0, 0, 255), width=3):
     """Save or show bounding boxes around desired elements.
 
@@ -143,6 +143,7 @@ def bounding_boxes(image, image_name, method, element=None, row=None, rows=None,
             element (dict, optional): define if method == 'elem'. Defaults to None.
             row (list, optional): define if method == 'row'. Defaults to None.
             rows (list, optional): define if method == 'by_row'. Defaults to None.
+            pred (bool, optional): draw label predictions if True. Define rows. Defaults to False.
             folder (str, optional): specified folder to save image in.
                 Defaults to 'results/{image_name}/table_debug'
             path (str, optional): full path of the saved image. Defaults to None.
@@ -158,21 +159,35 @@ def bounding_boxes(image, image_name, method, element=None, row=None, rows=None,
     image_bbox = image.copy()
     if not folder:
         folder = f'results/{image_name}/table_debug'
-    if method == 'elem':
-        draw_single_bbox(image_bbox, element, color, width)
-    elif method == 'row':
-        for element in row:
+    if not pred:
+        if method == 'elem':
             draw_single_bbox(image_bbox, element, color, width)
-    elif method == 'by_row':
-        for row in rows:
-            blue, green, red = rand(0, 255), rand(0, 255), rand(0, 255)
-            color = (blue, green, red)
+        elif method == 'row':
             for element in row:
                 draw_single_bbox(image_bbox, element, color, width)
-            if show:
-                show_image(image_bbox)
+        elif method == 'by_row':
+            for row in rows:
+                blue, green, red = rand(0, 255), rand(0, 255), rand(0, 255)
+                color = (blue, green, red)
+                for element in row:
+                    draw_single_bbox(image_bbox, element, color, width)
+                if show:
+                    show_image(image_bbox)
+        else:
+            raise ValueError("Method must be 'elem', 'row' or 'by_row'")
     else:
-        raise ValueError("Method must be 'elem', 'row' or 'by_row'")
+        for element in row:
+            if element['prediction'] == 'misc':
+                continue
+            if element['prediction'] == 'doc_id':
+                color = (34, 34, 178)
+            elif element['prediction'] == 'info':
+                color = (80, 127, 255)
+            elif element['prediction'] == 'total':
+                color = (34, 139, 34)
+            elif element['prediction'] == 'verif':
+                color = (211, 0, 148)
+            draw_single_bbox(image_bbox, element, color)
     if save:
         if path:
             save_image(image_bbox, path)
