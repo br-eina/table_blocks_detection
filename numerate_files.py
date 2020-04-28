@@ -1,6 +1,7 @@
 """Numerate files in the folder"""
 from argparse import ArgumentParser
 import os
+from os.path import isfile
 from tqdm import tqdm
 
 
@@ -11,14 +12,16 @@ def parsing():
     parser = ArgumentParser(description='Convert pdf to jpg')
     parser.add_argument('--folder', metavar='FOLDER', default=_FOLDER, type=str,
                         help='Path of the folder with files (default: "docs/")')
+    parser.add_argument('--prefix', metavar='PREFIX', default=None, type=str,
+                        help='Prefix of the filename (example: "pref_inv-0000")')
     args = parser.parse_args()
-    return args.folder
+    return args.folder, args.prefix
 
 def main():
     """Script for numerating files"""
-    folder = parsing()
+    folder, prefix = parsing()
     os.chdir(folder)
-    filenames = os.listdir()
+    filenames = [f for f in os.listdir() if isfile(f)]
     print(f'{len(filenames)} files to numerate: \n')
 
     pbar = tqdm(filenames)
@@ -36,7 +39,7 @@ def main():
         else:
             index = f'{ind_file}'
 
-        filename = 'inv'
+        filename = f'{prefix}_inv' if prefix else 'inv'
         ext = file_path.split('.')[1]
 
         os.rename(file_path, f'{filename}-{index}.{ext}')
