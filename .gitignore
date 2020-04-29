@@ -5,6 +5,7 @@ scripts/1C pdf
 scripts/1C img
 docs/
 predictions/
+labels/
 1C pdf/
 results/
 categories/
