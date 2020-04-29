@@ -5,7 +5,7 @@ from inv_processing import utils
 
 def main():
     """Read dataset with 'prediction' field and draw predictions on the images"""
-    path_df = 'pred_blocks.csv'
+    path_df = 'pred_symbols.csv'
     df = pd.read_csv(path_df)
 
     test_filenames = df['filename'].unique()
@@ -15,13 +15,13 @@ def main():
         row = df_inv.to_dict('records')
 
         image_path = f'docs/test/{image_name}.jpg'
-        predict_folder = 'predictions'
+        predict_folder = 'labels/symbols'
         image = cv2.imread(image_path)
 
         utils.create_folders(predict_folder)
         utils.save_image(image, path=f'{predict_folder}/{image_name}.jpg')
 
-        utils.bounding_boxes(image, image_name, pred=True, method='row', row=row,
+        utils.bounding_boxes(image, image_name, label_field='label', method='row', row=row,
                              path=f'{predict_folder}/{image_name}_pred.jpg')
 
 if __name__ == "__main__":
