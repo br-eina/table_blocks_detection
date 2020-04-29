@@ -124,7 +124,7 @@ def draw_single_bbox(image, element, color=(0, 0, 255), width=3):
     p_2 = (element['x'] + element['w'], element['y'] + element['h'])
     cv2.rectangle(image, p_1, p_2, color, width)
 
-def bounding_boxes(image, image_name, method, element=None, row=None, rows=None, pred=False,
+def bounding_boxes(image, image_name, method, element=None, row=None, rows=None, label_field=None,
                    folder=None, path=None, save=True, show=False, color=(0, 0, 255), width=3):
     """Save or show bounding boxes around desired elements.
 
@@ -143,7 +143,8 @@ def bounding_boxes(image, image_name, method, element=None, row=None, rows=None,
             element (dict, optional): define if method == 'elem'. Defaults to None.
             row (list, optional): define if method == 'row'. Defaults to None.
             rows (list, optional): define if method == 'by_row'. Defaults to None.
-            pred (bool, optional): draw label predictions if True. Define rows. Defaults to False.
+            label_field (str, optional): draw label or predictions around label_field if defined. Define rows.
+                Defaults to None.
             folder (str, optional): specified folder to save image in.
                 Defaults to 'results/{image_name}/table_debug'
             path (str, optional): full path of the saved image. Defaults to None.
@@ -159,7 +160,7 @@ def bounding_boxes(image, image_name, method, element=None, row=None, rows=None,
     image_bbox = image.copy()
     if not folder:
         folder = f'results/{image_name}/table_debug'
-    if not pred:
+    if not label_field:
         if method == 'elem':
             draw_single_bbox(image_bbox, element, color, width)
         elif method == 'row':
@@ -177,15 +178,15 @@ def bounding_boxes(image, image_name, method, element=None, row=None, rows=None,
             raise ValueError("Method must be 'elem', 'row' or 'by_row'")
     else:
         for element in row:
-            if element['prediction'] == 'misc':
+            if element[label_field] == 'misc':
                 continue
-            if element['prediction'] == 'doc_id':
+            if element[label_field] == 'doc_id':
                 color = (34, 34, 178)
-            elif element['prediction'] == 'info':
+            elif element[label_field] == 'info':
                 color = (80, 127, 255)
-            elif element['prediction'] == 'total':
+            elif element[label_field] == 'total':
                 color = (34, 139, 34)
-            elif element['prediction'] == 'verif':
+            elif element[label_field] == 'verif':
                 color = (211, 0, 148)
             draw_single_bbox(image_bbox, element, color)
     if save:
