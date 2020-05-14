@@ -25,7 +25,7 @@ def main():
     # image_path = f'{image_name}.jpg'
     # create_folders(image_name)
 
-    draw_predictions.main()
+    draw_predictions.main(element_type='blocks')
 
 if __name__ == "__main__":
     main()
