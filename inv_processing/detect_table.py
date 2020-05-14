@@ -25,6 +25,25 @@ def elem_in_table(elem, table, thresh=4):
         return True
     return False
 
+def elem_above_or_below_table(elem, table, thresh=4):
+    """Check if element is inside a table.
+
+        Args:
+            elem (dict): element to check.
+            table (dict): table to check.
+            thresh (int, optional): threshold between element and table.
+                Defaults to 4. For lines thresh=10 is recommended.
+
+        Returns:
+            'Above' (str): if element is above a table.
+            'Below' (str): if element is below a table.
+
+    """
+    if table['y'] >= elem['y'] + elem['h'] - thresh:
+        return 'Above'
+    if table['y'] + table['h'] <= elem['y'] - thresh:
+        return 'Below'
+
 def table_by_lines(table, hor_lines, vert_lines, thresh=10):
     """Check if it is a table by containing lines.
 
@@ -86,11 +105,17 @@ def main(image_name, image_path):
     for ind_row, row in enumerate(text_blocks): # TODO: add these params from the beginning
         for ind_block in range(len(row)):
             text_blocks[ind_row][ind_block]['in_table'] = False
+            text_blocks[ind_row][ind_block]['above_1'] = False
+            text_blocks[ind_row][ind_block]['between'] = False
+            text_blocks[ind_row][ind_block]['below_2'] = False
             text_blocks[ind_row][ind_block]['img_h'] = img_h
             text_blocks[ind_row][ind_block]['img_w'] = img_w
     # Additional parameters to symbols:
     for ind, _ in enumerate(symbols):
         symbols[ind]['in_table'] = False
+        symbols[ind]['above_1'] = False
+        symbols[ind]['between'] = False
+        symbols[ind]['below_2'] = False
         symbols[ind]['img_h'] = img_h
         symbols[ind]['img_w'] = img_w
 
@@ -99,6 +124,7 @@ def main(image_name, image_path):
     for line in lines_dil:
         if table_by_lines(line, lines_hor, lines_vert):
             tables.append(line)
+    tables = sorted(tables, key=lambda table: table['y'])
 
     if tables:
         # Check if text_blocks and symbols in table:
@@ -127,6 +153,33 @@ def main(image_name, image_path):
         for block in row:
             if not block['in_table']:
                 text_blocks_non_table.append(block)
+
+    # Additional params to text_blocks and symbols
+    # Is it above 1st table, between tables, below 2nd table:
+    if len(tables) > 1:
+        table_1, table_2 = tables[0], tables[1]
+
+        for ind, symbol in enumerate(symbols_non_table):
+            if elem_above_or_below_table(symbol, table_1) == 'Above' and \
+            elem_above_or_below_table(symbol, table_2) == 'Above':
+                symbols_non_table[ind]['above_1'] = True
+            elif elem_above_or_below_table(symbol, table_1) == 'Below' and \
+                elem_above_or_below_table(symbol, table_2) == 'Above':
+                symbols_non_table[ind]['between'] = True
+            elif elem_above_or_below_table(symbol, table_1) == 'Below' and \
+                elem_above_or_below_table(symbol, table_2) == 'Below':
+                symbols_non_table[ind]['below_2'] = True
+
+        for ind, block in enumerate(text_blocks_non_table):
+            if elem_above_or_below_table(block, table_1) == 'Above' and \
+            elem_above_or_below_table(block, table_2) == 'Above':
+                text_blocks_non_table[ind]['above_1'] = True
+            elif elem_above_or_below_table(block, table_1) == 'Below' and \
+                elem_above_or_below_table(block, table_2) == 'Above':
+                text_blocks_non_table[ind]['between'] = True
+            elif elem_above_or_below_table(block, table_1) == 'Below' and \
+                elem_above_or_below_table(block, table_2) == 'Below':
+                text_blocks_non_table[ind]['below_2'] = True
 
     # Save images of non_table symbols and blocks:
     path_symbols_non_table = f'results/{image_name}/{image_name}_symbols_non_table.jpg'
