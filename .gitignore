@@ -5,6 +5,9 @@ scripts/1C pdf
 scripts/1C img
 docs/
 predictions/
+predictions_with_fact/
+Tesseract-OCR/
+tesser_data/
 labels/
 1C pdf/
 results/
