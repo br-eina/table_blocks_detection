@@ -5,7 +5,10 @@ from tqdm import tqdm
 from inv_processing import (detect_lines_symbols,
                             constr_rows,
                             constr_blocks,
-                            detect_table)
+                            detect_table,
+                            predict_label,
+                            model_training,
+                            recognize_tesser)
 from scripts import draw_predictions
 
 def create_folders(image_name):
@@ -25,7 +28,11 @@ def main():
     # image_path = f'{image_name}.jpg'
     # create_folders(image_name)
 
-    draw_predictions.main(element_type='blocks')
+    # draw_predictions.main(element_type='blocks')
+
+    # model_training.main()
+    # predict_label.main(image_name='inv-0000')
+    recognize_tesser.main('inv-0000')
 
 if __name__ == "__main__":
     main()
