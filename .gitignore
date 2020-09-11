@@ -96,3 +96,4 @@ target/
 # cpp
 *.cpp
 Makefile
+test.py
