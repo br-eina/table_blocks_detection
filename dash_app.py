@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import sys
-sys.path.append(".")
+# import sys
+# sys.path.append(".")
 from os.path import exists
 import dash
 from dash.dependencies import Input, Output, State
