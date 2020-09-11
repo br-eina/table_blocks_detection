@@ -2,11 +2,7 @@
 import os
 from argparse import ArgumentParser
 from pdf2image import convert_from_path
-from pdf2image.exceptions import (PDFInfoNotInstalledError,
-                                  PDFPageCountError,
-                                  PDFSyntaxError)
 from tqdm import tqdm
-from PIL import Image
 from inv_processing.utils import create_folders
 
 _INPUT_FOLDER = '1C pdf/'
