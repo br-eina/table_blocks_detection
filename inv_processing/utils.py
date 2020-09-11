@@ -191,6 +191,9 @@ def bounding_boxes(image, image_name, method, element=None, row=None, rows=None,
             draw_single_bbox(image_bbox, element, color)
     if save:
         if path:
+            # Create folders if necessary
+            folders_in_path = [folder for folder in path.split('/') if '.' not in folder]
+            create_folders(folders_in_path)
             save_image(image_bbox, path)
         else:
             save_image(image_bbox, f'{folder}/{image_name}_{method}.jpg')
