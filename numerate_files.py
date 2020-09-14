@@ -3,6 +3,8 @@ from argparse import ArgumentParser
 import os
 from os.path import isfile
 from tqdm import tqdm
+from string import ascii_letters
+from random import choice
 
 
 _FOLDER = 'docs/'
@@ -23,7 +25,13 @@ def main():
     os.chdir(folder)
     filenames = [f for f in os.listdir() if isfile(f)]
     print(f'{len(filenames)} files to numerate: \n')
-
+    # Rename files randomly to avoid missing files if input and output file_names are the same
+    for file_path in filenames:
+        filename = ''.join(choice(ascii_letters) for i in range(5))
+        ext = file_path.split('.')[1]
+        os.rename(file_path, f'{filename}.{ext}')
+    # Rename files
+    filenames = [f for f in os.listdir() if isfile(f)]
     pbar = tqdm(filenames)
     for ind_file, file_path in enumerate(pbar):
         pbar.set_description(f'Processind file #{ind_file+1}')
